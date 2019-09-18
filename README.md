@@ -50,17 +50,17 @@ gotoxy(x,y)，Draw_Blocks，Bottom判断，Draw_Kong，y++
 
 ……
 
-6. 堆叠部分，使用face,data[][]和face,color[][]来保存堆叠的BOX数据。
+ 6. 堆叠部分，使用face,data[][]和face,color[][]来保存堆叠的BOX数据。
 
-7. 判断是否触碰底部函数Bottom()，也是在测算当前光标坐标（x,y）渲染出的blocks[base][space_z].space[4][4],如果再次y++下移，是否会与face.data[][]中的BOX或WALL重叠，如果重叠，那么把当前光标坐标（x,y）位置渲染出的blocks[base][space_z].space[4][4]中1（即图形部分），存在对应face.data[][]位置，置为BOX。
+ 7. 判断是否触碰底部函数Bottom()，也是在测算当前光标坐标（x,y）渲染出的blocks[base][space_z].space[4][4],如果再次y++下移，是否会与face.data[][]中的BOX或WALL重叠，如果重叠，那么把当前光标坐标（x,y）位置渲染出的blocks[base][space_z].space[4][4]中1（即图形部分），存在对应face.data[][]位置，置为BOX。
 
 三、开发过程中遇到的问题及解决办法
 
-1. 旋转算法，让7种基础形状变换出剩余的21种
+ 1. 旋转算法，让7种基础形状变换出剩余的21种
 解决办法：blocks[base][space_z + 1].space[i][j] = tem[4 - j - 1][i];    //控制一边坐标不变，另一边为4 - i - 1，然后再行列互换，这样可以保证四次旋转不同，如果仅仅行列互换，将会导致只有两种旋转状态
 
-2. Windows cmd控制台光标信息COORD中，x是横坐标，y是纵坐标，在开发过程中，这两者总是搞混，多数BUG出自于此。
+ 2. Windows cmd控制台光标信息COORD中，x是横坐标，y是纵坐标，在开发过程中，这两者总是搞混，多数BUG出自于此。
 解决办法：这种横纵坐标搞混的错误现象还是很明显的，根据运行情况调试，设置断点，定位BUG位置
 
-3. 清除函数Eliminate()约占100行，比较复杂，开发时耗时较多，这里面出现了x，y横纵坐标搞混，只能清除单行、清除后上部堆叠方块无法下移等问题。
+ 3. 清除函数Eliminate()约占100行，比较复杂，开发时耗时较多，这里面出现了x，y横纵坐标搞混，只能清除单行、清除后上部堆叠方块无法下移等问题。
 解决方法：x，y横纵坐标搞混问题根据调试情况，设置断点，定位BUG位置，肉眼Debug。清除单行改进办法，追加了一次判断上一行是否堆满，如果堆满那么执行下一次Eliminate()。清除后上部堆叠方块无法下移问题，利用face.data[m][n] = face.data[m - 1][n];和face.color[m][n] = face.color[m - 1][n];  ，使清除后的该行，继承上一行的face,data和face,color数据，上一行再继承上上行，以此类推。
