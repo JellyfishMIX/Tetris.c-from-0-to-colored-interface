@@ -2,12 +2,13 @@
 #include<windows.h>
 #include<time.h>
 #include<stdlib.h>
+#include<conio.h>
 
-#define FACE_Y 29	//ÓÎÏ·ÇøĞĞÊı
-#define FACE_X 20	//ÓÎÏ·ÇøÁĞÊı
+#define FACE_Y 29	//æ¸¸æˆåŒºè¡Œæ•°
+#define FACE_X 20	//æ¸¸æˆåŒºåˆ—æ•°
 #define WALL  2
 #define KONG 0
-#define BOX 1	//ÒÑ¾­¶Ñ»ıÍê±ÏµÄ·½¿é
+#define BOX 1	//å·²ç»å †ç§¯å®Œæ¯•çš„æ–¹å—
 #define LEFT  75
 #define RIGHT 77
 #define DOWN 80
@@ -16,446 +17,452 @@
 
 struct Face
 {
-	int data[FACE_Y][FACE_X + 10];	//½á¹¹Ìå¶¨ÒåÊ±Êı×é¾ùÒÑ±»ÖÃÁã
-	int color[FACE_Y][FACE_X + 10];
+    int data[FACE_Y][FACE_X + 10];	//ç»“æ„ä½“å®šä¹‰æ—¶æ•°ç»„å‡å·²è¢«ç½®é›¶
+    int color[FACE_Y][FACE_X + 10];
 }face;
 struct Blocks
 {
-	int space[4][4];
-}blocks[7][4];	//blocks[base][space_z]£¬Ò»Î¬base±íÊ¾7¸ö»ù´¡·½¿é£¬¶şÎ¬space_z±íÊ¾Ğı×ª×´Ì¬
+    int space[4][4];
+}blocks[7][4];	//blocks[base][space_z]ï¼Œä¸€ç»´baseè¡¨ç¤º7ä¸ªåŸºç¡€æ–¹å—ï¼ŒäºŒç»´space_zè¡¨ç¤ºæ—‹è½¬çŠ¶æ€
 
-void Read_File();	//¶ÁÈ¡×î¸ßµÃ·Ö
-void Write_File();	//Ğ´Èë×î¸ßµÃ·Ö
-void Inter_Face();	//³õÊ¼»¯½çÃæ
-void Inter_Blocks();	//³õÊ¼»¯·½¿éĞÅÏ¢
-void Start_Game();	//¿ªÊ¼ÓÎÏ·
-void Draw_Kong(int base, int space_z, int x, int y);	//¸²¸ÇÇ°Ò»¸öblocksµÄ·½¿é£¬È¡¶ø´úÖ®»­³ö¿Õ¸ñ
-void Draw_Blocks(int base, int space_z, int x, int y);	//»­³öµ±Ç°blocksµÄ·½¿é
-int Bottom(int base, int space_z, int x, int y);	//WALLÓëBOX³ÆÎªµ×²¿,ÅĞ¶ÏÊÇ·ñ´¥Åöµ½µ×²¿£¬´¥Åöµ½µ×²¿·µ»Ø1£¬Î´´¥Åöµ½µ×²¿·µ»Ø0
-int Eliminate();	//Ò»ĞĞ¶Ñ»ıÂúºóÇå³ı¸ÃĞĞ£¬²¢¼ÇÂ¼·ÖÖµ£¬²¢Ñ¯ÎÊÍæ¼ÒÊÇ·ñ¼ÌĞø
-void Hide_Cursor();	//Òş²Ø¹â±ê
-void color(int c);	//¸Ä±äÊä³ö×Ö·ûµÄÑÕÉ«
-void gotoxy(int x,int y);	//×ø±êÌø×ª
+void Read_File();	//è¯»å–æœ€é«˜å¾—åˆ†
+void Write_File();	//å†™å…¥æœ€é«˜å¾—åˆ†
+void Inter_Face();	//åˆå§‹åŒ–ç•Œé¢
+void Inter_Blocks();	//åˆå§‹åŒ–æ–¹å—ä¿¡æ¯
+void Start_Game();	//å¼€å§‹æ¸¸æˆ
+void Draw_Kong(int base, int space_z, int x, int y);	//è¦†ç›–å‰ä¸€ä¸ªblocksçš„æ–¹å—ï¼Œå–è€Œä»£ä¹‹ç”»å‡ºç©ºæ ¼
+void Draw_Blocks(int base, int space_z, int x, int y);	//ç”»å‡ºå½“å‰blocksçš„æ–¹å—
+int Bottom(int base, int space_z, int x, int y);	//WALLä¸BOXç§°ä¸ºåº•éƒ¨,åˆ¤æ–­æ˜¯å¦è§¦ç¢°åˆ°åº•éƒ¨ï¼Œè§¦ç¢°åˆ°åº•éƒ¨è¿”å›1ï¼Œæœªè§¦ç¢°åˆ°åº•éƒ¨è¿”å›0
+int Eliminate();	//ä¸€è¡Œå †ç§¯æ»¡åæ¸…é™¤è¯¥è¡Œï¼Œå¹¶è®°å½•åˆ†å€¼ï¼Œå¹¶è¯¢é—®ç©å®¶æ˜¯å¦ç»§ç»­
+void Hide_Cursor();	//éšè—å…‰æ ‡
+void color(int c);	//æ”¹å˜è¾“å‡ºå­—ç¬¦çš„é¢œè‰²
+void gotoxy(int x,int y);	//åæ ‡è·³è½¬
 
-int nn, max=0, grade=0;	//nn,È«¾Ö±äÁ¿£¬ÓÃÀ´È¡blocks[base][space_z]ÖĞµÄbase£¬±íÊ¾7ÖÖ»ù´¡Í¼ĞÎÖ®Ò»
+int nn, max=0, grade=0;	//nn,å…¨å±€å˜é‡ï¼Œç”¨æ¥å–blocks[base][space_z]ä¸­çš„baseï¼Œè¡¨ç¤º7ç§åŸºç¡€å›¾å½¢ä¹‹ä¸€
 int main()
 {
-	system("title Tetris(DIY)");    //ÉèÖÃcmd´°¿Ú±êÌâ
-	system("mode con lines=29 cols=60");    //ÉèÖÃcmd´°¿Ú¸ß¶È¡¢¿í¶È
-	color(7);    //¸Ä±äÊä³ö×Ö·ûµÄÑÕÉ«
-	Hide_Cursor();    //Òş²Ø¹â±ê
-	Read_File();    //¶ÁÈ¡×î¸ßµÃ·Ö
-	Inter_Face();    //³õÊ¼»¯½çÃæ
-	Inter_Blocks();    //³õÊ¼»¯·½¿éĞÅÏ¢
-	srand(time(NULL));	//mainº¯ÊıÖĞÉèÖÃsrand((unsigned)time(NULL));Ê±£¬Ó°ÏìµÄ½«ÊÇËùÓĞµÄrand
-	nn = rand() % 7;    //nn,È«¾Ö±äÁ¿£¬ÓÃÀ´È¡blocks[base][space_z]ÖĞµÄbase£¬±íÊ¾7ÖÖ»ù´¡Í¼ĞÎÖ®Ò»¡£ÕâÀïÊ¹nnËæ»úÈ¡µÃ0¡«6ÖĞµÄÒ»¸öÖµ£¬¼´Ëæ»úÈ¡µÃ7ÖÖ»ù´¡Í¼ĞÎÖ®Ò»
-	while (1)
-	{
-		Start_Game();
-	}
+    system("title Tetris(DIY)");    //è®¾ç½®cmdçª—å£æ ‡é¢˜
+    system("mode con lines=29 cols=60");    //è®¾ç½®cmdçª—å£é«˜åº¦ã€å®½åº¦
+    color(7);    //æ”¹å˜è¾“å‡ºå­—ç¬¦çš„é¢œè‰²
+    Hide_Cursor();    //éšè—å…‰æ ‡
+    Read_File();    //è¯»å–æœ€é«˜å¾—åˆ†
+    Inter_Face();    //åˆå§‹åŒ–ç•Œé¢
+    Inter_Blocks();    //åˆå§‹åŒ–æ–¹å—ä¿¡æ¯
+    srand(time(NULL));	//mainå‡½æ•°ä¸­è®¾ç½®srand((unsigned)time(NULL));æ—¶ï¼Œå½±å“çš„å°†æ˜¯æ‰€æœ‰çš„rand
+    nn = rand() % 7;    //nn,å…¨å±€å˜é‡ï¼Œç”¨æ¥å–blocks[base][space_z]ä¸­çš„baseï¼Œè¡¨ç¤º7ç§åŸºç¡€å›¾å½¢ä¹‹ä¸€ã€‚è¿™é‡Œä½¿nnéšæœºå–å¾—0ï½6ä¸­çš„ä¸€ä¸ªå€¼ï¼Œå³éšæœºå–å¾—7ç§åŸºç¡€å›¾å½¢ä¹‹ä¸€
+    while (1)
+    {
+        Start_Game();
+    }
 }
 
-void Read_File()    //¶ÁÈ¡×î¸ßµÃ·Ö
+void Read_File()    //è¯»å–æœ€é«˜å¾—åˆ†
 {
-#pragma warning(disable:4996)    //¶Ô Visual Studio 2019 ½øĞĞµÄ¾¯¸æÏû³ı£¬IDE²»ÊÇVisual Studio¿ÉÒÔÉ¾È¥
-	FILE *fp;
-	fp = fopen("¶íÂŞË¹·½¿é×î¸ßµÃ·Ö¼ÇÂ¼.txt", "r+");	//r+ ÒÔ¿É¶ÁĞ´·½Ê½´ò¿ªÎÄ¼ş£¬¸ÃÎÄ¼ş±ØĞë´æÔÚ
-	if (fp == NULL)
-	{
-		fp = fopen("¶íÂŞË¹·½¿é×î¸ßµÃ·Ö¼ÇÂ¼.txt", "w+");
-		fwrite(&max, sizeof(int), 1, fp);
-	}
-	fseek(fp, 0, 0);	//º¯ÊıÉèÖÃÎÄ¼şÖ¸ÕëstreamµÄÎ»ÖÃ¡£Èç¹ûÖ´ĞĞ³É¹¦£¬stream½«Ö¸ÏòÒÔfromwhere£¨Æ«ÒÆÆğÊ¼Î»ÖÃ£ºÎÄ¼şÍ·0(SEEK_SET)£¬µ±Ç°Î»ÖÃ1(SEEK_CUR)£¬ÎÄ¼şÎ²2(SEEK_END)£©Îª»ù×¼£¬Æ«ÒÆoffset£¨Ö¸ÕëÆ«ÒÆÁ¿£©¸ö×Ö½ÚµÄÎ»ÖÃ¡£Èç¹ûÖ´ĞĞÊ§°Ü(±ÈÈçoffset³¬¹ıÎÄ¼ş×ÔÉí´óĞ¡)£¬Ôò²»¸Ä±ästreamÖ¸ÏòµÄÎ»ÖÃ¡£
-	fread(&max, sizeof(int), 1, fp);
-	fclose(fp);
+#pragma warning(disable:4996)    //å¯¹ Visual Studio 2019 è¿›è¡Œçš„è­¦å‘Šæ¶ˆé™¤ï¼ŒIDEä¸æ˜¯Visual Studioå¯ä»¥åˆ å»
+    FILE *fp;
+    fp = fopen("ä¿„ç½—æ–¯æ–¹å—æœ€é«˜å¾—åˆ†è®°å½•.txt", "r+");	//r+ ä»¥å¯è¯»å†™æ–¹å¼æ‰“å¼€æ–‡ä»¶ï¼Œè¯¥æ–‡ä»¶å¿…é¡»å­˜åœ¨
+    if (fp == NULL)
+    {
+        fp = fopen("ä¿„ç½—æ–¯æ–¹å—æœ€é«˜å¾—åˆ†è®°å½•.txt", "w+");
+        fwrite(&max, sizeof(int), 1, fp);
+    }
+    fseek(fp, 0, 0);	//å‡½æ•°è®¾ç½®æ–‡ä»¶æŒ‡é’ˆstreamçš„ä½ç½®ã€‚å¦‚æœæ‰§è¡ŒæˆåŠŸï¼Œstreamå°†æŒ‡å‘ä»¥fromwhereï¼ˆåç§»èµ·å§‹ä½ç½®ï¼šæ–‡ä»¶å¤´0(SEEK_SET)ï¼Œå½“å‰ä½ç½®1(SEEK_CUR)ï¼Œæ–‡ä»¶å°¾2(SEEK_END)ï¼‰ä¸ºåŸºå‡†ï¼Œåç§»offsetï¼ˆæŒ‡é’ˆåç§»é‡ï¼‰ä¸ªå­—èŠ‚çš„ä½ç½®ã€‚å¦‚æœæ‰§è¡Œå¤±è´¥(æ¯”å¦‚offsetè¶…è¿‡æ–‡ä»¶è‡ªèº«å¤§å°)ï¼Œåˆ™ä¸æ”¹å˜streamæŒ‡å‘çš„ä½ç½®ã€‚
+    fread(&max, sizeof(int), 1, fp);
+    fclose(fp);
 }
 
-void Write_File()    //Ğ´Èë×î¸ßµÃ·Ö
+void Write_File()    //å†™å…¥æœ€é«˜å¾—åˆ†
 {
-#pragma warning(disable:4996)    //¶Ô Visual Studio 2019 ½øĞĞµÄ¾¯¸æÏû³ı£¬IDE²»ÊÇVisual Studio¿ÉÒÔÉ¾È¥
-	FILE* fp;
-	fp = fopen("¶íÂŞË¹·½¿é×î¸ßµÃ·Ö¼ÇÂ¼.txt", "w+");
-	fwrite(&grade, sizeof(int), 1, fp);
-	fclose(fp);
+#pragma warning(disable:4996)    //å¯¹ Visual Studio 2019 è¿›è¡Œçš„è­¦å‘Šæ¶ˆé™¤ï¼ŒIDEä¸æ˜¯Visual Studioå¯ä»¥åˆ å»
+    FILE* fp;
+    fp = fopen("ä¿„ç½—æ–¯æ–¹å—æœ€é«˜å¾—åˆ†è®°å½•.txt", "w+");
+    fwrite(&grade, sizeof(int), 1, fp);
+    fclose(fp);
 }
 
-void Inter_Face()    //³õÊ¼»¯½çÃæ
+void Inter_Face()    //åˆå§‹åŒ–ç•Œé¢
 {
-	int i, j;
-	for (i = 0; i < FACE_Y; i++)
-	{
-		for (j = 0; j < FACE_X + 10; j++)
-		{
-			if (j == 0 || j == FACE_X - 1 || j == FACE_X + 9)
-			{
-				face.data[i][j] = WALL;
-				gotoxy(2 * j, i);
-				printf("¡ö");
-			}
-			else if (i == FACE_Y - 1)
-			{
-				face.data[i][j] = WALL;
-				printf("¡ö");
-			}
-			else
-				face.data[i][j] = KONG;
-		}
-	}
-	gotoxy(2 * FACE_X + 4, FACE_Y - 18);
-	printf("×óÒÆ£º¡û");
+    int i, j;
+    for (i = 0; i < FACE_Y; i++)
+    {
+        for (j = 0; j < FACE_X + 10; j++)
+        {
+            if (j == 0 || j == FACE_X - 1 || j == FACE_X + 9)
+            {
+                face.data[i][j] = WALL;
+                gotoxy(2 * j, i);
+                printf("â– ");
+            }
+            else if (i == FACE_Y - 1)
+            {
+                face.data[i][j] = WALL;
+                printf("â– ");
+            }
+            else
+                face.data[i][j] = KONG;
+        }
+    }
+    gotoxy(2 * FACE_X + 4, FACE_Y - 18);
+    printf("å·¦ç§»ï¼šâ†");
 
-	gotoxy(2 * FACE_X + 4, FACE_Y - 16);
-	printf("ÓÒÒÆ£º¡ú");
+    gotoxy(2 * FACE_X + 4, FACE_Y - 16);
+    printf("å³ç§»ï¼šâ†’");
 
-	gotoxy(2 * FACE_X + 4, FACE_Y - 14);
-	printf("Ğı×ª£ºspace");
+    gotoxy(2 * FACE_X + 4, FACE_Y - 14);
+    printf("æ—‹è½¬ï¼šspace");
 
-	gotoxy(2 * FACE_X + 4, FACE_Y - 12);
-	printf("ÔİÍ£: S");
+    gotoxy(2 * FACE_X + 4, FACE_Y - 12);
+    printf("æš‚åœ: S");
 
-	gotoxy(2 * FACE_X + 4, FACE_Y - 10);
-	printf("ÍË³ö: ESC");
+    gotoxy(2 * FACE_X + 4, FACE_Y - 10);
+    printf("é€€å‡º: ESC");
 
-	gotoxy(2 * FACE_X + 4, FACE_Y - 8);
-	printf("ÖØĞÂ¿ªÊ¼:R");
+    gotoxy(2 * FACE_X + 4, FACE_Y - 8);
+    printf("é‡æ–°å¼€å§‹:R");
 
-	gotoxy(2 * FACE_X + 4, FACE_Y - 6);
-	printf("×î¸ß¼ÍÂ¼:%d", max);
+    gotoxy(2 * FACE_X + 4, FACE_Y - 6);
+    printf("æœ€é«˜çºªå½•:%d", max);
 
-	gotoxy(2 * FACE_X + 4, FACE_Y - 4);
-	printf("·ÖÊı£º%d", grade);
+    gotoxy(2 * FACE_X + 4, FACE_Y - 4);
+    printf("åˆ†æ•°ï¼š%d", grade);
 }
 
-void Inter_Blocks()    //³õÊ¼»¯·½¿éĞÅÏ¢
+void Inter_Blocks()    //åˆå§‹åŒ–æ–¹å—ä¿¡æ¯
 {
-	int i;
+    int i;
 
-	///////////////////////////////////»ù´¡Æß¸öĞÎ×´
-	//µ¹ÖÃÍÁ×ÖĞÎ
-	for (i = 0; i < 3; i++)
-		blocks[0][0].space[1][i] = 1;
-	blocks[0][0].space[2][1] = 1;
+    ///////////////////////////////////åŸºç¡€ä¸ƒä¸ªå½¢çŠ¶
+    //å€’ç½®åœŸå­—å½¢
+    for (i = 0; i < 3; i++)
+        blocks[0][0].space[1][i] = 1;
+    blocks[0][0].space[2][1] = 1;
 
-	//LĞÎ-1
-	for(i=1;i<4;i++)
-		blocks[1][0].space[i][1] = 1;
-	blocks[1][0].space[1][2] = 1;
+    //Lå½¢-1
+    for(i=1;i<4;i++)
+        blocks[1][0].space[i][1] = 1;
+    blocks[1][0].space[1][2] = 1;
 
-	//LĞÎ-2
-	for(i=1;i<4;i++)
-		blocks[2][0].space[i][2] = 1;
-	blocks[2][0].space[1][1] = 1;
+    //Lå½¢-2
+    for(i=1;i<4;i++)
+        blocks[2][0].space[i][2] = 1;
+    blocks[2][0].space[1][1] = 1;
 
-	for (i = 0; i < 2; i++)
-	{
-		//ZĞÎ-1
-		blocks[3][0].space[1][i] = 1;
-		blocks[3][0].space[2][i + 1] = 1;
+    for (i = 0; i < 2; i++)
+    {
+        //Zå½¢-1
+        blocks[3][0].space[1][i] = 1;
+        blocks[3][0].space[2][i + 1] = 1;
 
-		//ZĞÎ×´-2
-		blocks[4][0].space[1][i + 1] = 1;
-		blocks[4][0].space[2][i] = 1;
+        //Zå½¢çŠ¶-2
+        blocks[4][0].space[1][i + 1] = 1;
+        blocks[4][0].space[2][i] = 1;
 
-		//Ìï×ÖĞÎ
-		blocks[5][0].space[1][i + 1] = 1;
-		blocks[5][0].space[2][i + 1] = 1;
-	}
+        //ç”°å­—å½¢
+        blocks[5][0].space[1][i + 1] = 1;
+        blocks[5][0].space[2][i + 1] = 1;
+    }
 
-	//1×ÖĞÎ
-	for (i = 0; i < 4; i++)
-	{
-		blocks[6][0].space[i][2] = 1;
-	}
+    //1å­—å½¢
+    for (i = 0; i < 4; i++)
+    {
+        blocks[6][0].space[i][2] = 1;
+    }
 
-	///////////////////////////////////7¸ö»ù´¡ĞÎ×´µÄĞı×ª×´Ì¬space_z£¬Ğı×ª×´Ì¬¹²¼Æ7*3+7=21+7ÖÖ
-	int base, space_z, j, tem[4][4];
-	for (base = 0; base < 7; base++)
-	{
-		for (space_z = 0; space_z < 3; space_z++)
-		{
-			for (i = 0; i < 4; i++)
-			{
-				for (j = 0; j < 4; j++)
-				{
-					tem[i][j] = blocks[base][space_z].space[i][j];
-				}
-			}
-			for (i = 0; i < 4; i++)
-			{
-				for (j = 0; j < 4; j++)
-				{
-					blocks[base][space_z + 1].space[i][j] = tem[4 - j - 1][i];	//¿ØÖÆÒ»±ß×ø±ê²»±ä£¬ÁíÒ»±ßÎª4 - i - 1£¬È»ºóÔÙĞĞÁĞ»¥»»£¬ÕâÑù¿ÉÒÔ±£Ö¤ËÄ´ÎĞı×ª²»Í¬£¬Èç¹û½ö½öĞĞÁĞ»¥»»£¬½«»áµ¼ÖÂÖ»ÓĞÁ½ÖÖĞı×ª×´Ì¬
-				}
-			}
-		}
-	}
+    ///////////////////////////////////7ä¸ªåŸºç¡€å½¢çŠ¶çš„æ—‹è½¬çŠ¶æ€space_zï¼Œæ—‹è½¬çŠ¶æ€å…±è®¡7*3+7=21+7ç§
+    int base, space_z, j, tem[4][4];
+    for (base = 0; base < 7; base++)
+    {
+        for (space_z = 0; space_z < 3; space_z++)
+        {
+            for (i = 0; i < 4; i++)
+            {
+                for (j = 0; j < 4; j++)
+                {
+                    tem[i][j] = blocks[base][space_z].space[i][j];
+                }
+            }
+            for (i = 0; i < 4; i++)
+            {
+                for (j = 0; j < 4; j++)
+                {
+                    blocks[base][space_z + 1].space[i][j] = tem[4 - j - 1][i];	//æ§åˆ¶ä¸€è¾¹åæ ‡ä¸å˜ï¼Œå¦ä¸€è¾¹ä¸º4 - i - 1ï¼Œç„¶åå†è¡Œåˆ—äº’æ¢ï¼Œè¿™æ ·å¯ä»¥ä¿è¯å››æ¬¡æ—‹è½¬ä¸åŒï¼Œå¦‚æœä»…ä»…è¡Œåˆ—äº’æ¢ï¼Œå°†ä¼šå¯¼è‡´åªæœ‰ä¸¤ç§æ—‹è½¬çŠ¶æ€
+                }
+            }
+        }
+    }
 }
 
-void Start_Game()    //¿ªÊ¼ÓÎÏ·¡£·ÖÎªÁ½²¿·Ö£¬¿ªÍ·ÊÇäÖÈ¾ÓÒÉÏ½ÇÏÂÒ»¸öÌáÊ¾Í¼ĞÎ£¬µÚ¶ş²¿·ÖÊÇwhile(1)£¬Ò²¾ÍÊÇ×ó²àÓÎÏ·ÇøÍ¼ĞÎÏÂÂäºÍ¶Ñµş
+void Start_Game()    //å¼€å§‹æ¸¸æˆã€‚åˆ†ä¸ºä¸¤éƒ¨åˆ†ï¼Œå¼€å¤´æ˜¯æ¸²æŸ“å³ä¸Šè§’ä¸‹ä¸€ä¸ªæç¤ºå›¾å½¢ï¼Œç¬¬äºŒéƒ¨åˆ†æ˜¯while(1)ï¼Œä¹Ÿå°±æ˜¯å·¦ä¾§æ¸¸æˆåŒºå›¾å½¢ä¸‹è½å’Œå †å 
 {
-	int space_z = 0, n, x = FACE_X / 2 - 2, y = 0, t = 0, i, j, ch;	//x,y³õÊ¼Öµ¼´ÆÁÄ»¶¥¶ËµôÂäblocks´¦
-	Draw_Kong(nn, space_z, FACE_X + 3, 4);
-	n = nn;	//ÒòÎªÓÒÉÏ½ÇÒªÏÔÊ¾ÏÂÒ»¿éblocks£¬Òò´ËÕâÀïÏÈ¼ÇÂ¼ÏÂµ±Ç°blocksµÄbase
-	nn = rand() % 7;	//Ëæ»úÉú³ÉÏÂÒ»¿éblocksµÄbase
-	color(nn);
-	Draw_Blocks(nn, space_z, FACE_X + 3, 4);
-	while (1)
-	{
-		color(n);	//°Ñ¹â±êÑÕÉ«µ÷»Øµ±Ç°blocksµÄbase
-		Draw_Blocks(n, space_z, x, y);
-		if (t == 0)
-			t = 15000;
-		while (--t)
-		{
-			if (kbhit() != 0)	//kbhit()ÊÇÒ»¸öCºÍC++º¯Êı£¬ÓÃÓÚ·Ç×èÈûµØÏìÓ¦¼üÅÌÊäÈëÊÂ¼ş¡£ÆäÖĞÎÄ¿ÉÒëÎª¡°¼üÅÌÇÃ»÷¡±(keyboard hit)
-				break;
-		}
-		if (t == 0)
-		{
-			if (Bottom(n, space_z, x, y+1) != 1)
-			{
-				Draw_Kong(n, space_z, x, y);
-				y++;
-			}
-			else
-			{
-				for (i = 0; i < 4; i++)
-				{
-					for (j = 0; j < 4; j++)
-					{
-						if (blocks[n][space_z].space[i][j] == 1)
-						{
-							face.data[y + i][x + j] = BOX;
-							face.color[y + i][x + j] = n;
-							while (Eliminate());
-						}
-					}
-				}
-				return; 
-			}
-		}
-		else
-		{
-			ch = getch();
-			switch (ch)
-			{
-			case LEFT:
-				if (Bottom(n, space_z, x - 1, y) != 1)
-				{
-					Draw_Kong(n, space_z, x, y);
-					x--;
-				}
-				break;
-			case RIGHT:
-				if (Bottom(n, space_z, x + 1, y) != 1)
-				{
-					Draw_Kong(n, space_z, x, y);
-					x++;
-				}
-				break;
-			case DOWN:
-				if (Bottom(n, space_z, x , y+1) != 1)
-				{
-					Draw_Kong(n, space_z, x, y);
-					y++;
-				}
-				break;
-			case SPACE:
-				if (Bottom(n, (space_z + 1) % 4, x, y + 1) != 1)
-				{
-					Draw_Kong(n, space_z, x, y);
-					y++;
-					space_z = (space_z + 1) % 4;
-				}
-				break;
-			case ESC:
-				system("cls");
-				gotoxy(FACE_X, FACE_Y / 2);
-				printf("   ---ÓÎÏ·½áÊø---");
-				gotoxy(FACE_X, FACE_Y / 2 + 1);
-				printf("---Çë°´ÈÎÒâ¼üÍË³ö---");
-				system("pause>nul");
-				exit(0);
-			case 'S':
-			case 's':
-				while (1)
-				{
-					system("pause>nul");
-					break;
-				}
-				break;
-			case 'R':
-			case 'r':
-				main();
-			}
-		}
-	}
+    int space_z = 0, n, x = FACE_X / 2 - 2, y = 0, t = 0, i, j, ch;	//x,yåˆå§‹å€¼å³å±å¹•é¡¶ç«¯æ‰è½blockså¤„
+    Draw_Kong(nn, space_z, FACE_X + 3, 4);
+    n = nn;	//å› ä¸ºå³ä¸Šè§’è¦æ˜¾ç¤ºä¸‹ä¸€å—blocksï¼Œå› æ­¤è¿™é‡Œå…ˆè®°å½•ä¸‹å½“å‰blocksçš„base
+    nn = rand() % 7;	//éšæœºç”Ÿæˆä¸‹ä¸€å—blocksçš„base
+    color(nn);
+    Draw_Blocks(nn, space_z, FACE_X + 3, 4);
+    while (1)
+    {
+        color(n);	//æŠŠå…‰æ ‡é¢œè‰²è°ƒå›å½“å‰blocksçš„base
+        Draw_Blocks(n, space_z, x, y);
+        if (t == 0)
+            t = 15000;
+        while (--t)
+        {
+            if (kbhit() != 0)	//kbhit()æ˜¯ä¸€ä¸ªCå’ŒC++å‡½æ•°ï¼Œç”¨äºéé˜»å¡åœ°å“åº”é”®ç›˜è¾“å…¥äº‹ä»¶ã€‚å…¶ä¸­æ–‡å¯è¯‘ä¸ºâ€œé”®ç›˜æ•²å‡»â€(keyboard hit)
+                break;
+        }
+        if (t == 0)
+        {
+            if (Bottom(n, space_z, x, y+1) != 1)
+            {
+                Draw_Kong(n, space_z, x, y);
+                y++;
+            }
+            else
+            {
+                for (i = 0; i < 4; i++)
+                {
+                    for (j = 0; j < 4; j++)
+                    {
+                        if (blocks[n][space_z].space[i][j] == 1)
+                        {
+                            face.data[y + i][x + j] = BOX;
+                            face.color[y + i][x + j] = n;
+                            while (Eliminate());
+                        }
+                    }
+                }
+                return;
+            }
+        }
+        else
+        {
+            ch = getch();
+            switch (ch)
+            {
+                case LEFT:
+                    if (Bottom(n, space_z, x - 1, y) != 1)
+                    {
+                        Draw_Kong(n, space_z, x, y);
+                        x--;
+                    }
+                    break;
+                case RIGHT:
+                    if (Bottom(n, space_z, x + 1, y) != 1)
+                    {
+                        Draw_Kong(n, space_z, x, y);
+                        x++;
+                    }
+                    break;
+                case DOWN:
+                    if (Bottom(n, space_z, x , y+1) != 1)
+                    {
+                        Draw_Kong(n, space_z, x, y);
+                        y++;
+                    }
+                    break;
+                case SPACE:
+                    if (Bottom(n, (space_z + 1) % 4, x, y + 1) != 1)
+                    {
+                        Draw_Kong(n, space_z, x, y);
+                        y++;
+                        space_z = (space_z + 1) % 4;
+                    }
+                    break;
+                case ESC:
+                    system("cls");
+                    gotoxy(FACE_X, FACE_Y / 2);
+                    printf("   ---æ¸¸æˆç»“æŸ---");
+                    gotoxy(FACE_X, FACE_Y / 2 + 1);
+                    printf("---è¯·æŒ‰ä»»æ„é”®é€€å‡º---");
+                    system("pause>nul");
+                    exit(0);
+                case 'S':
+                case 's':
+                    while (1)
+                    {
+                        system("pause>nul");
+                        break;
+                    }
+                    break;
+                case 'R':
+                case 'r':
+                    system("cls");    // é‡æ–°å¼€å§‹æ¸¸æˆå‰ï¼Œæ¸…å±
+                    main();
+            }
+        }
+    }
 }
 
-void Draw_Kong(int base, int space_z, int x, int y)    //¸²¸ÇÇ°Ò»¸öblocksµÄ·½¿é£¬È¡¶ø´úÖ®»­³ö¿Õ¸ñ
+void Draw_Kong(int base, int space_z, int x, int y)    //è¦†ç›–å‰ä¸€ä¸ªblocksçš„æ–¹å—ï¼Œå–è€Œä»£ä¹‹ç”»å‡ºç©ºæ ¼
 {
-	int i, j;
-	for (i = 0; i < 4; i++)
-	{
-		for (j = 0; j < 4; j++)
-		{
-			gotoxy(2 * (x + j), y + i);
-			if (blocks[base][space_z].space[i][j] == 1)
-				printf("  ");
-		}
-	}
+    int i, j;
+    for (i = 0; i < 4; i++)
+    {
+        for (j = 0; j < 4; j++)
+        {
+            gotoxy(2 * (x + j), y + i);
+            if (blocks[base][space_z].space[i][j] == 1)
+                printf("  ");
+        }
+    }
 }
 
-void Draw_Blocks(int base, int space_z, int x, int y)    //»­³öµ±Ç°blocksµÄ·½¿é
+void Draw_Blocks(int base, int space_z, int x, int y)    //ç”»å‡ºå½“å‰blocksçš„æ–¹å—
 {
-	int i, j;
-	for (i = 0; i < 4; i++)
-	{
-		for (j = 0; j < 4; j++)
-		{
-			gotoxy(2 * (x + j), y + i);
-			if (blocks[base][space_z].space[i][j] == 1)
-				printf("¡ö");
-		}
-	}
+    int i, j;
+    for (i = 0; i < 4; i++)
+    {
+        for (j = 0; j < 4; j++)
+        {
+            gotoxy(2 * (x + j), y + i);
+            if (blocks[base][space_z].space[i][j] == 1)
+                printf("â– ");
+        }
+    }
 }
 
-int Bottom(int base, int space_z, int x, int y)    //WALLÓëBOX³ÆÎªµ×²¿,ÅĞ¶ÏÊÇ·ñ´¥Åöµ½µ×²¿£¬´¥Åöµ½µ×²¿·µ»Ø1£¬Î´´¥Åöµ½µ×²¿·µ»Ø0
+int Bottom(int base, int space_z, int x, int y)    //WALLä¸BOXç§°ä¸ºåº•éƒ¨,åˆ¤æ–­æ˜¯å¦è§¦ç¢°åˆ°åº•éƒ¨ï¼Œè§¦ç¢°åˆ°åº•éƒ¨è¿”å›1ï¼Œæœªè§¦ç¢°åˆ°åº•éƒ¨è¿”å›0
 {
-	int i, j;
-	for (i = 0; i < 4; i++)
-	{
-		for (j = 0; j < 4; j++)
-		{
-			if (blocks[base][space_z].space[i][j] == 0)
-				continue;
-			else if (face.data[y + i][x + j] == WALL || face.data[y + i][x + j] == BOX)
-				return 1;
-		}
-	}
-	return 0;
+    int i, j;
+    for (i = 0; i < 4; i++)
+    {
+        for (j = 0; j < 4; j++)
+        {
+            if (blocks[base][space_z].space[i][j] == 0)
+                continue;
+            else if (face.data[y + i][x + j] == WALL || face.data[y + i][x + j] == BOX)
+                return 1;
+        }
+    }
+    return 0;
 }
 
-int Eliminate()    //Ò»ĞĞ¶Ñ»ıÂúºóÇå³ı¸ÃĞĞ£¬²¢¼ÇÂ¼·ÖÖµ£¬²¢Ñ¯ÎÊÍæ¼ÒÊÇ·ñ¼ÌĞø
+int Eliminate()    //ä¸€è¡Œå †ç§¯æ»¡åæ¸…é™¤è¯¥è¡Œï¼Œå¹¶è®°å½•åˆ†å€¼ï¼Œå¹¶è¯¢é—®ç©å®¶æ˜¯å¦ç»§ç»­
 {
-#pragma warning(disable:4996)    //¶Ô Visual Studio 2019 ½øĞĞµÄ¾¯¸æÏû³ı£¬IDE²»ÊÇVisual Studio¿ÉÒÔÉ¾È¥
-	int i, j, sum, m, n;
-	for (i = FACE_Y - 2; i > 4; i--)
-	{
-		sum = 0;
-		for (j = 1; j < FACE_X - 1; j++)
-		{
-			sum += face.data[i][j];
-		}
-		if (sum == 0)
-			break;
-		if (sum == FACE_X - 2)
-		{
-			grade += 100;
-			color(7);
-			gotoxy(2 * FACE_X + 4, FACE_Y - 4);
-			printf("·ÖÊı£º%d", grade);
-			for (j = 1; j < FACE_X - 1; j++)
-			{
-				face.data[i][j] = KONG;
-				gotoxy(2 * j, i);
-				printf("  ");
-			}
-			for (m = i; m > 1; m--)
-			{
-				sum = 0;
-				for (n = 1; n < FACE_X - 1; n++)
-				{
-					sum += face.data[m - 1][n];
-					face.data[m][n] = face.data[m - 1][n];
-					face.color[m][n] = face.color[m - 1][n];
-					if (face.data[m][n] == KONG)
-					{
-						gotoxy(2 * n, m);
-						printf("  ");
-					}
-					else
-					{
-						gotoxy(2 * n, m);
-						color(face.color[m][n]);
-						printf("¡ö");
-					}
-				}
-				if (sum == 0)
-					return 1;
-			}
-		}
-	}
-	for (j = 1; j < FACE_X - 1; j++)
-	{
-		if (face.data[1][j] == BOX)
-		{
-			Sleep(1000);	//ÑÓÊ±£¬¸øÍæ¼Ò·´Ó¦Ê±¼ä
-			system("cls");
-			color(7);
-			gotoxy(2 * (FACE_X / 3), FACE_Y / 2 - 2);
-			if (grade > max)
-			{
-				printf("¹§Ï²Äú´òÆÆ¼ÇÂ¼£¬Ä¿Ç°×î¸ß¼ÇÂ¼Îª£º%d", grade);
-				Write_File();
-			}
-			else if (grade == max)
-				printf("Óë¼ÇÂ¼³ÖÆ½£¬ÇëÍ»ÆÆÄãµÄ¼«ÏŞ£¡");
-			else
-				printf("Çë¼ÌĞøÅ¬Á¦£¬ÄãÓë×î¸ß¼ÍÂ¼Ö®²î£º%d", max - grade);
-			gotoxy(2 * (FACE_X / 3), FACE_Y / 2);
-			printf("GAME OVER!");
-			char ch;
-			while (1)
-			{
-				gotoxy(2 * (FACE_X / 3), FACE_Y / 2 + 2);
-				printf("ÇëÎÊÊÇ·ñ¼ÌĞøÓÎÏ·£¿(y/n)£º ");
-				scanf("%c", &ch);
-				if (ch == 'Y' || ch == 'y')
-					main();
-				else if (ch == 'N' || ch == 'n')
-					exit(0);
-				else
-				{
-					gotoxy(2 * (FACE_X / 3), FACE_Y / 2 + 4);
-					printf("ÊäÈë´íÎó£¬ÇëÖØĞÂÊäÈë£¡");
-				}
-			}
-		}
-	}
-	return 0;
+#pragma warning(disable:4996)    //å¯¹ Visual Studio 2019 è¿›è¡Œçš„è­¦å‘Šæ¶ˆé™¤ï¼ŒIDEä¸æ˜¯Visual Studioå¯ä»¥åˆ å»
+    int i, j, sum, m, n;
+    for (i = FACE_Y - 2; i > 4; i--)
+    {
+        sum = 0;
+        for (j = 1; j < FACE_X - 1; j++)
+        {
+            sum += face.data[i][j];
+        }
+        if (sum == 0)
+            break;
+        if (sum == FACE_X - 2)
+        {
+            grade += 100;
+            color(7);
+            gotoxy(2 * FACE_X + 4, FACE_Y - 4);
+            printf("åˆ†æ•°ï¼š%d", grade);
+            for (j = 1; j < FACE_X - 1; j++)
+            {
+                face.data[i][j] = KONG;
+                gotoxy(2 * j, i);
+                printf("  ");
+            }
+            for (m = i; m > 1; m--)
+            {
+                sum = 0;
+                for (n = 1; n < FACE_X - 1; n++)
+                {
+                    sum += face.data[m - 1][n];
+                    face.data[m][n] = face.data[m - 1][n];
+                    face.color[m][n] = face.color[m - 1][n];
+                    if (face.data[m][n] == KONG)
+                    {
+                        gotoxy(2 * n, m);
+                        printf("  ");
+                    }
+                    else
+                    {
+                        gotoxy(2 * n, m);
+                        color(face.color[m][n]);
+                        printf("â– ");
+                    }
+                }
+                if (sum == 0)
+                    return 1;
+            }
+        }
+    }
+    for (j = 1; j < FACE_X - 1; j++)
+    {
+        if (face.data[1][j] == BOX)
+        {
+            Sleep(1000);	//å»¶æ—¶ï¼Œç»™ç©å®¶ååº”æ—¶é—´
+            system("cls");
+            color(7);
+            gotoxy(2 * (FACE_X / 3), FACE_Y / 2 - 2);
+            if (grade > max)
+            {
+                printf("æ­å–œæ‚¨æ‰“ç ´è®°å½•ï¼Œç›®å‰æœ€é«˜è®°å½•ä¸ºï¼š%d", grade);
+                Write_File();
+            }
+            else if (grade == max)
+                printf("ä¸è®°å½•æŒå¹³ï¼Œè¯·çªç ´ä½ çš„æé™ï¼");
+            else
+                printf("è¯·ç»§ç»­åŠªåŠ›ï¼Œä½ ä¸æœ€é«˜çºªå½•ä¹‹å·®ï¼š%d", max - grade);
+            gotoxy(2 * (FACE_X / 3), FACE_Y / 2);
+            printf("GAME OVER!");
+            char ch;
+            while (1)
+            {
+                gotoxy(2 * (FACE_X / 3), FACE_Y / 2 + 2);
+                printf("è¯·é—®æ˜¯å¦ç»§ç»­æ¸¸æˆï¼Ÿ(y/n)ï¼š ");
+                scanf("%c", &ch);
+                if (ch == 'Y' || ch == 'y')
+                {
+                    system("cls");    // é‡æ–°å¼€å§‹æ¸¸æˆå‰ï¼Œæ¸…å±
+                    main();
+                }
+                else if (ch == 'N' || ch == 'n')
+                {
+                    exit(0);
+                }
+                else
+                {
+                    gotoxy(2 * (FACE_X / 3), FACE_Y / 2 + 4);
+                    printf("è¾“å…¥é”™è¯¯ï¼Œè¯·é‡æ–°è¾“å…¥ï¼");
+                }
+            }
+        }
+    }
+    return 0;
 }
 
-void Hide_Cursor()    //Òş²Ø¹â±ê
+void Hide_Cursor()    //éšè—å…‰æ ‡
 {
-	//×öÒ»¸öÃÅ°ÑÊÖ£¬´ò¿ª±ùÏäÃÅ£¬ÄÃ³ö´óÏó£¬°Ñ´óÏóĞŞ¸ÄÒ»ÏÂ£¬ÔÙ°Ñ´óÏóÈû»ØÈ¥
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);	//HANDLE¾ä±úÖ¸µÄÊÇÒ»¸öºËĞÄ¶ÔÏóÔÚÄ³Ò»¸ö½ø³ÌÖĞµÄÎ¨Ò»Ë÷Òı£¬¶ø²»ÊÇÖ¸Õë¡£GetStdHandleÊÇÒ»¸öWindows APIº¯Êı¡£ËüÓÃÓÚ´ÓÒ»¸öÌØ¶¨µÄ±ê×¼Éè±¸£¨±ê×¼ÊäÈë¡¢±ê×¼Êä³ö»ò±ê×¼´íÎó£©ÖĞÈ¡µÃÒ»¸ö¾ä±ú£¨ÓÃÀ´±êÊ¶²»Í¬Éè±¸µÄÊıÖµ£©¡£
-	CONSOLE_CURSOR_INFO cci;	//CONSOLE_CURSOR_INFO°üº¬µÄ¿ØÖÆÌ¨¹â±êµÄĞÅÏ¢
-	GetConsoleCursorInfo(hOut, &cci);	//¼ìË÷ÓĞ¹ØÖ¸¶¨µÄ¿ØÖÆÌ¨ÆÁÄ»»º³åÇøµÄ¹â±êµÄ¿É¼ûĞÔºÍ´óĞ¡ĞÅÏ¢¡£(hConsoleOutput,¿ØÖÆÌ¨ÆÁÄ»»º³åÇøµÄ¾ä±ú¡£¸Ã¾ä±ú±ØĞë¾ßÓĞµÄ GENERIC_READ µÄ·ÃÎÊÈ¨ÏŞ¡£; lpConsoleCursorInfo, Ö¸Ïò½ÓÊÕÓĞ¹Ø¸Ã¿ØÖÆÌ¨µÄ¹â±êµÄĞÅÏ¢µÄCONSOLE_CURSOR_INFO½á¹¹µÄÖ¸Õë¡£)
-	cci.bVisible = 0;	//¸³Öµ0ÎªÒş²Ø£¬¸³Öµ1Îª¿É¼û
-	SetConsoleCursorInfo(hOut, &cci);
+    //åšä¸€ä¸ªé—¨æŠŠæ‰‹ï¼Œæ‰“å¼€å†°ç®±é—¨ï¼Œæ‹¿å‡ºå¤§è±¡ï¼ŒæŠŠå¤§è±¡ä¿®æ”¹ä¸€ä¸‹ï¼Œå†æŠŠå¤§è±¡å¡å›å»
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);	//HANDLEå¥æŸ„æŒ‡çš„æ˜¯ä¸€ä¸ªæ ¸å¿ƒå¯¹è±¡åœ¨æŸä¸€ä¸ªè¿›ç¨‹ä¸­çš„å”¯ä¸€ç´¢å¼•ï¼Œè€Œä¸æ˜¯æŒ‡é’ˆã€‚GetStdHandleæ˜¯ä¸€ä¸ªWindows APIå‡½æ•°ã€‚å®ƒç”¨äºä»ä¸€ä¸ªç‰¹å®šçš„æ ‡å‡†è®¾å¤‡ï¼ˆæ ‡å‡†è¾“å…¥ã€æ ‡å‡†è¾“å‡ºæˆ–æ ‡å‡†é”™è¯¯ï¼‰ä¸­å–å¾—ä¸€ä¸ªå¥æŸ„ï¼ˆç”¨æ¥æ ‡è¯†ä¸åŒè®¾å¤‡çš„æ•°å€¼ï¼‰ã€‚
+    CONSOLE_CURSOR_INFO cci;	//CONSOLE_CURSOR_INFOåŒ…å«çš„æ§åˆ¶å°å…‰æ ‡çš„ä¿¡æ¯
+    GetConsoleCursorInfo(hOut, &cci);	//æ£€ç´¢æœ‰å…³æŒ‡å®šçš„æ§åˆ¶å°å±å¹•ç¼“å†²åŒºçš„å…‰æ ‡çš„å¯è§æ€§å’Œå¤§å°ä¿¡æ¯ã€‚(hConsoleOutput,æ§åˆ¶å°å±å¹•ç¼“å†²åŒºçš„å¥æŸ„ã€‚è¯¥å¥æŸ„å¿…é¡»å…·æœ‰çš„ GENERIC_READ çš„è®¿é—®æƒé™ã€‚; lpConsoleCursorInfo, æŒ‡å‘æ¥æ”¶æœ‰å…³è¯¥æ§åˆ¶å°çš„å…‰æ ‡çš„ä¿¡æ¯çš„CONSOLE_CURSOR_INFOç»“æ„çš„æŒ‡é’ˆã€‚)
+    cci.bVisible = 0;	//èµ‹å€¼0ä¸ºéšè—ï¼Œèµ‹å€¼1ä¸ºå¯è§
+    SetConsoleCursorInfo(hOut, &cci);
 }
 
-void color(int c)    //¸Ä±äÊä³ö×Ö·ûµÄÑÕÉ«
+void color(int c)    //æ”¹å˜è¾“å‡ºå­—ç¬¦çš„é¢œè‰²
 {
-	switch (c)
-	{
-	case 0: c = 9; break;
-	case 1:
-	case 2: c = 12; break;
-	case 3:
-	case 4: c = 14; break;
-	case 5: c = 10; break;
-	case 6: c = 13; break;
-	default: c = 7; break;
-	}
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);	//SetConsoleTextAttributeÊÇÒ»¸öAPI£¨Ó¦ÓÃ³ÌĞò±à³Ì½Ó¿Ú£©£¬¿ÉÒÔÉèÖÃ¿ØÖÆÌ¨´°¿Ú×ÖÌåÑÕÉ«ºÍ±³¾°É«µÄ¼ÆËã»úº¯Êı
+    switch (c)
+    {
+        case 0: c = 9; break;
+        case 1:
+        case 2: c = 12; break;
+        case 3:
+        case 4: c = 14; break;
+        case 5: c = 10; break;
+        case 6: c = 13; break;
+        default: c = 7; break;
+    }
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);	//SetConsoleTextAttributeæ˜¯ä¸€ä¸ªAPIï¼ˆåº”ç”¨ç¨‹åºç¼–ç¨‹æ¥å£ï¼‰ï¼Œå¯ä»¥è®¾ç½®æ§åˆ¶å°çª—å£å­—ä½“é¢œè‰²å’ŒèƒŒæ™¯è‰²çš„è®¡ç®—æœºå‡½æ•°
 }
 
-void gotoxy(int x,int y)    //×ø±êÌø×ª
+void gotoxy(int x,int y)    //åæ ‡è·³è½¬
 {
-	COORD coord;	//COORDÊÇWindows APIÖĞ¶¨ÒåµÄÒ»ÖÖ½á¹¹£¬±íÊ¾Ò»¸ö×Ö·ûÔÚ¿ØÖÆÌ¨ÆÁÄ»ÉÏµÄ×ø±ê¡£
-	coord.X = x;
-	coord.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);    //SetConsoleCursorPositionÊÇÒ»¸öAPI£¨Ó¦ÓÃ³ÌĞò±à³Ì½Ó¿Ú£©£¬¿ÉÒÔÉèÖÃÉèÖÃ¿ØÖÆÌ¨´°¿ÚÖĞ¹â±êµÄÎ»ÖÃ¡£
+    COORD coord;	//COORDæ˜¯Windows APIä¸­å®šä¹‰çš„ä¸€ç§ç»“æ„ï¼Œè¡¨ç¤ºä¸€ä¸ªå­—ç¬¦åœ¨æ§åˆ¶å°å±å¹•ä¸Šçš„åæ ‡ã€‚
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);    //SetConsoleCursorPositionæ˜¯ä¸€ä¸ªAPIï¼ˆåº”ç”¨ç¨‹åºç¼–ç¨‹æ¥å£ï¼‰ï¼Œå¯ä»¥è®¾ç½®è®¾ç½®æ§åˆ¶å°çª—å£ä¸­å…‰æ ‡çš„ä½ç½®ã€‚
 }
