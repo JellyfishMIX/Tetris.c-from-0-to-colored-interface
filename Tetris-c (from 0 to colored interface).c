@@ -279,11 +279,7 @@ void Start_Game()    //开始游戏。分为两部分，开头是渲染右上角
                     exit(0);
                 case 'S':
                 case 's':
-                    while (1)
-                    {
-                        system("pause>nul");
-                        break;
-                    }
+                    system("pause>nul");
                     break;
                 case 'R':
                 case 'r':
